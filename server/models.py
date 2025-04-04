@@ -12,6 +12,19 @@ class Author(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     # Add validators 
+    @validates("name")
+    def validate_name(self,key,value):
+        if not value:
+            raise ValueError("Name cannot be empty")
+        if Author.query.filter_by(name=value).first():
+            raise ValueError("Author with this name already exists")
+        return value
+    
+    @validates('phone_number')
+    def validate_phone_number(self,key,value):
+        if not value or len(value) !=10 or not value.isdigit():
+            raise ValueError("Phone number must be at least 10 digits and numeric")
+        return value
 
     def __repr__(self):
         return f'Author(id={self.id}, name={self.name})'
@@ -28,6 +41,11 @@ class Post(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     # Add validators  
+    @validates('content','summary')
+    def validate_content_sumary(self,key,value):
+        if not value or len(value) !=250:
+            raise ValueError("Content must be at least 250 characters long")
+        return value
 
 
     def __repr__(self):
